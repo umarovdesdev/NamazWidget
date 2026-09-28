@@ -1,30 +1,59 @@
 # NamazWidget — «Время намаза»
 
-Виджет для **Windows** и **macOS** в одном репозитории: клонируйте — и правьте обе версии.
+Время намаза в строке меню macOS и на рабочем столе Windows: отсчёт до следующего намаза, расписание на день, жамагат и уведомления.
+Данные — с [namazvakti.com](https://namazvakti.com).
 
-- Windows — C# (WPF), Windows 7/8/10/11, собирается компилятором из .NET Framework 4, ничего ставить не нужно.
-- macOS — нативный виджет для строки меню macOS на Swift (AppKit + SwiftUI), macOS 12 и новее. Значка в Dock нет.
+- **macOS** — нативный виджет для строки меню на Swift (AppKit + SwiftUI), macOS 12 и новее. Значка в Dock нет.
+- **Windows** — C# (WPF), Windows 7 / 8 / 10 / 11. Собирается компилятором из .NET Framework 4, который уже есть в Windows, — ничего ставить не нужно.
 
 ## Скачать
 
-Готовые файлы лежат в [`release/`](release/):
-
-| ОС | Файл | |
+| ОС | Файл | Примечание |
 |---|---|---|
-| Windows | [`release/NamazWidget.exe`](release/NamazWidget.exe) | |
-| macOS | [`release/NamazWidget.dmg`](release/NamazWidget.dmg) | появится после первой сборки на Mac (`bash macos/build.sh`) |
+| macOS | [NamazWidget.dmg](release/NamazWidget.dmg) | Apple Silicon (M1 и новее); для Intel соберите из исходников |
+| Windows | [NamazWidget.exe](release/NamazWidget.exe) | один файл, установка не нужна |
+
+Приложения не подписаны, поэтому при первом запуске система может предупредить:
+
+- **macOS** — перетащите приложение из DMG в «Программы», затем правый клик → «Открыть» или один раз выполните
+  `xattr -dr com.apple.quarantine /Applications/NamazWidget.app`.
+- **Windows** — в окне SmartScreen нажмите «Подробнее» → «Выполнить в любом случае».
+
+## Возможности
+
+- Полумесяц со звездой в строке меню — одним цветом, как значки других программ (белый в тёмной теме, чёрный в светлой).
+- Наведение — компактная карточка: отсчёт, текущий и следующий намаз, жамагат.
+- Нажатие — полный вид: кольцо до следующего намаза, часы, даты по милади и хиджре, список времён и жамагат.
+  Нажали мимо — панель закрывается; правый клик — меню виджета.
+- Пять языков: Қазақша, Русский, O'zbekcha, Кыргызча, English.
+- Выбор города: поиск или список «страна → регион».
+- Расписание на год сохраняется — виджет работает без интернета.
+- Уведомления: окно в центре экрана со звуком и уведомление системы; прозрачность окна настраивается.
+- В полноэкранной программе (Telegram, Safari и т. п.) карточка по наведению не всплывает, а вместо окна приходит уведомление macOS.
+
+Настройки хранятся в `~/Library/Application Support/NamazWidget/` (macOS) и `%APPDATA%\NamazWidget\` (Windows).
 
 ## Структура
 
 ```
-windows/   исходник NamazWidget.cs, значок, build.cmd
-macos/     исходники Swift (Sources/, Shared/, Resources/), build.sh
-release/   собранные NamazWidget.exe и NamazWidget.dmg — коммитятся в git
+macos/     исходники Swift (Sources/, Shared/, Resources/) и build.sh
+windows/   исходник NamazWidget.cs, значок и build.cmd
+release/   готовые NamazWidget.dmg и NamazWidget.exe
 ```
 
-После изменений соберите нужную версию — файл в `release/` обновится — и закоммитьте его вместе с кодом.
+## Сборка
 
-## Сборка для Windows
+### macOS
+
+```bash
+xcode-select --install          # один раз, если нет Xcode или Command Line Tools
+bash macos/build.sh             # универсальная сборка: Apple Silicon + Intel
+ARCHS=arm64 bash macos/build.sh # только Apple Silicon
+```
+
+Результат — `macos/build/NamazWidget.app` и `release/NamazWidget.dmg`.
+
+### Windows
 
 ```bat
 windows\build.cmd
@@ -32,28 +61,4 @@ windows\build.cmd
 
 Результат — `release\NamazWidget.exe`. Если виджет запущен из `release\`, сначала закройте его, иначе файл занят.
 
-## Сборка для macOS
-
-```bash
-xcode-select --install      # один раз, если нет Xcode
-bash macos/build.sh         # только Apple Silicon: ARCHS=arm64 bash macos/build.sh
-```
-
-Готовый `macos/build/NamazWidget.app` перенесите в «Программы».
-Если .app скопировали с другого Mac (zip, флешка), macOS может заблокировать запуск — один раз:
-`xattr -dr com.apple.quarantine /Applications/NamazWidget.app` (или правый клик → «Открыть»).
-
-`build.sh` также создаёт `release/NamazWidget.dmg`.
-
-## Возможности
-
-Полумесяц со звездой в строке меню — одним цветом, как значки других программ (белый в тёмной теме, чёрный в светлой).
-Наведение — под ним панель со стрелкой, компактная карточка (отсчёт, текущий и следующий намаз, жамагат);
-нажатие — полный вид в той же панели: слева кольцо до следующего намаза, часы и даты милади/хиджри, справа список времён и жамагат;
-нажали мимо — панель закрывается. Правый клик по полумесяцу или по панели — меню виджета. Пять языков, выбор города
-(поиск и список страна → регион), годовое расписание в кэше — работает без интернета,
-уведомления с окном в центре экрана, звуком и уведомлением macOS, прозрачность окна-уведомления.
-В полноэкранной программе (Telegram, Safari и т. п.) карточка по наведению не всплывает, а вместо окна-уведомления
-приходит уведомление macOS.
-
-Настройки: `~/Library/Application Support/NamazWidget/`.
+После изменений в коде пересоберите нужную версию и закоммитьте обновлённый файл из `release/` вместе с исходниками.
